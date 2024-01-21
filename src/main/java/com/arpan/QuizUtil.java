@@ -38,7 +38,6 @@ public class QuizUtil {
         Path path1 = Path.of(path + "art.txt");
 
 
-
         // Base URL
         StringBuilder baseURL = new StringBuilder("https://opentdb.com/api.php?");
 
@@ -46,6 +45,7 @@ public class QuizUtil {
 
         int numberOfQuestions;
         int category;
+        char level;
         try {
             String art = Files.readString(path1);
             System.out.println(art);
@@ -59,19 +59,39 @@ public class QuizUtil {
 
             System.out.print("Which category do you want to play? e.g 10 (0 for any) ");
             category = sc.nextInt();
+            sc.nextLine();
+            System.out.print("Which level do you want to play? (E)asy, (M)edium, (H)ard, (A)ny? ");
+            String temp = sc.nextLine();
+            level = Character.toUpperCase(temp.charAt(0));
 
-            if ((numberOfQuestions >= 1 && numberOfQuestions <= 50) && (category == 0 || category >= 9 && category <= 32)) {
+            if ((numberOfQuestions >= 1 && numberOfQuestions <= 50) && (category == 0 || category >= 9 && category <= 32) && (level == 'E' || level == 'M' || level == 'H' || level == 'A')) {
+
                 baseURL.append("amount=").append(numberOfQuestions);
-                baseURL.append("&category=").append(category == 0 ? "any" : category);
+                if (category != 0) {
+                    baseURL.append("&category=").append(category);
+                }
+                if (level != 'A') {
+                    String urlLevel;
+                    baseURL.append("&difficulty=");
+                    if (level == 'E') {
+                        urlLevel = "easy";
+                    } else if (level == 'M') {
+                        urlLevel = "medium";
+                    } else {
+                        urlLevel = "hard";
+                    }
+                    baseURL.append(urlLevel);
+                }
                 baseURL.append("&type=boolean");
+
                 List<TriviaQuestion> questions = getResponse(baseURL);
+
                 if (questions.isEmpty()) {
                     System.out.println("Sorry some problems are there");
                 } else {
-                    Path gameIntro = Path.of(path + "art.txt");
-                    String content = Files.readString(gameIntro);
                     playGame(questions);
                 }
+
             } else {
                 System.out.println("Wrong Input!!");
             }
